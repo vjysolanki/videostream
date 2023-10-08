@@ -5,7 +5,7 @@ import com.vj.tain.videostream.repository.VideoRepository;
 import com.vj.tain.videostream.services.api.VideoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,7 +18,7 @@ public class VideoServiceImp implements VideoService {
     public Video publish(Video video) {
         video.setImpressions(0); // set initial impressions to 0
         video.setViews(0); // set initial views to 0
-        return videoRepository.save(video);
+        return saveVideo(video);
     }
 
     @Override
@@ -42,14 +42,14 @@ public class VideoServiceImp implements VideoService {
                 .format(Optional.ofNullable(metadata.getFormat()).orElse(existingVideo.getFormat()))
                 .build();
 
-        return videoRepository.save(updatedVideo);
+        return saveVideo(updatedVideo);
     }
 
     @Override
     public Video delist(String vId) {
         Video videoToDelist = videoRepository.findById(vId).orElseThrow(() -> new IllegalArgumentException("[ERROR] - Video you are trying to delist doesn't exist!!"));
         videoToDelist.setDelisted(true);
-        return videoRepository.save(videoToDelist);
+        return saveVideo(videoToDelist);
     }
 
     @Override
@@ -66,6 +66,11 @@ public class VideoServiceImp implements VideoService {
         //some logic to find the video location that used by the player to load video from.
         // System may build a URL here and return that
         return String.format("https://mocked_video_url.com/%s/%s", vId, playableVideo.getFormat());
+    }
+
+    @Transactional
+    private Video saveVideo(Video video) {
+        return videoRepository.save(video);
     }
 
     private <T> T updateIfNull(T newValue, T currentValue) {

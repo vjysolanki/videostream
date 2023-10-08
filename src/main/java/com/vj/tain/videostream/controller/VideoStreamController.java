@@ -6,11 +6,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
+import javax.persistence.OptimisticLockException;
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/videos")
@@ -71,10 +70,17 @@ public class VideoStreamController {
     }
 
 
-    @ExceptionHandler(IllegalArgumentException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public final String illegalArgumentExceptionHandler(final IllegalArgumentException e) {
+    @RestControllerAdvice
+    public class GlobalExceptionHandler {
 
-        return '"' + e.getMessage() + '"';
+        @ExceptionHandler(OptimisticLockException.class)
+        public ResponseEntity<String> optimisticLockExceptionHandler(OptimisticLockException ex) {
+            return new ResponseEntity<>("Failed due to optimistic locking. Please refresh your data and try again.", HttpStatus.CONFLICT);
+        }
+        @ExceptionHandler(IllegalArgumentException.class)
+        public ResponseEntity<String> illegalArgumentExceptionHandler(final IllegalArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
     }
+
 }

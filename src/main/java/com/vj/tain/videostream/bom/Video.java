@@ -22,6 +22,8 @@ public class Video {
     )
     @Column(name = "id", updatable = false, nullable = false, columnDefinition = "VARCHAR(36)")
     private String id;
+
+    @Lob
     private String content;  // mock video content (string)
 
     //META-DATA
@@ -39,4 +41,8 @@ public class Video {
     // Analytics
     private int impressions;
     private int views;
+
+    // Optimistic lock
+    @Version
+    private Long version;
 }

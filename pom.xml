@@ -63,13 +63,6 @@
 			</exclusions>
 		</dependency>
 
-		<!-- You don't need this as JUnit 4 is not being used -->
-		<!-- <dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<scope>test</scope>
-		</dependency> -->
-
 	</dependencies>
 
 	<build>
