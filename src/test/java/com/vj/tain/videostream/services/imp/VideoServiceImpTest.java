@@ -46,6 +46,7 @@ public class VideoServiceImpTest {
         videoWithMetadata.setYearOfRelease(2023);
         videoWithMetadata.setRunningTime(120);
         videoWithMetadata.setCrew(Arrays.asList("Actor 1", "Actor 2", "Actor 3"));
+        videoWithMetadata.setFormat("mp4");
         videoWithMetadata.setDelisted(false);
     }
 

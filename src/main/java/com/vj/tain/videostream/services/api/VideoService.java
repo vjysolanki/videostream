@@ -12,4 +12,9 @@ public interface VideoService {
 
     Video updateMetadata(String vId, Video video);
 
+    Video delist(String vId);
+
+    Video getById(String vId);
+
+    String playVideo(String vId);
 }

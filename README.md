@@ -21,7 +21,7 @@ A REST API project for Tain Video Streaming. The project is built with following
 
 * Server is launched on 8080 port. Target on http://localhost:8080/videos
 * To access the interactive API (openAPI) on: http://localhost:8080/swagger-ui/index.html
-
+* You can view the contents of the H2 database by navigating to http://localhost:8080/h2-console in a web browser. Make sure to configure the JDBC URL as jdbc:h2:mem:testdb to connect to the database.
 ## REST API Exposed: 
 
 Following rest APIs are exposed. For all the below mentioned API, we can test them with swagger exposed API or use curl as given under usage. 

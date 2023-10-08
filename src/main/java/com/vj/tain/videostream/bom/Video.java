@@ -2,11 +2,9 @@ package com.vj.tain.videostream.bom;
 
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.proxy.HibernateProxy;
 
 import javax.persistence.*;
 import java.util.List;
-import java.util.Objects;
 
 @Entity
 @Table(name = "video")
@@ -35,6 +33,7 @@ public class Video {
     private int yearOfRelease;
     private String genre;
     private int runningTime;
+    private String format;
     private boolean delisted; // for soft delete
 
     // Analytics
