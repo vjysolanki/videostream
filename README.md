@@ -42,7 +42,10 @@ PUT api to update an existing video metadata in store. If the video doesnt exist
 
 
 #### delistVideo
-`curl -X PUT 'http://localhost:8080/videos/<videoId>/delist'`
+
+[//]: # (`curl -X PUT 'http://localhost:8080/videos/<videoId>/delist'`)
+`curl -X DELETE "http://localhost:8080/videos/<videoId>?soft=true"
+`
 
 #### loadVideo
 `curl -X GET 'http://localhost:8080/videos/<videoId>'`
@@ -65,14 +68,14 @@ GET WS to get all the videos which exist in the store.
 
 - With search criteria (for example: by director):
 
-`curl -X GET 'http://localhost:8080/videos/search?director=SomeDirectorName'`
+`curl -X GET 'http://localhost:8080/videos/search?director=SomeDirectorName&crew=SomeCrewName&genre=SomeGenre'`
 
 #### retrieveVideoEngagement
 `curl -X GET 'http://localhost:8080/videos/<videoId>/engagement'`
 
 ### Metadata
 #### add metadata 
-`curl -X POST "http://localhost:8080/videos/{VIDEO_ID}/metadata" \
+`curl -X POST "http://localhost:8080/videos/<videoId>/metadata" \
 -H "Content-Type: application/json" \
 -d '{
 "title": "SampleTitle",
@@ -86,7 +89,7 @@ GET WS to get all the videos which exist in the store.
 }'
 `
 ### update metadata
-`curl -X PUT "http://localhost:8080/videos/{VIDEO_ID}/metadata" \
+`curl -X PUT "http://localhost:8080/videos/<videoId>/metadata" \
 -H "Content-Type: application/json" \
 -d '{
 "title": "UpdatedTitle",
@@ -111,7 +114,6 @@ Full report screenshot below:
 # Note
 
 3. logging
-4. version is not used ( not incremented or validated)
 5. test cases 
 
 
@@ -119,3 +121,4 @@ Full report screenshot below:
 - Current system does not identify duplicate contents meaning you can publish same video or metadata multiple times
 as ID for both are system generated UUID and generates when we push Video or Metadata. This can be handled by comparing
 values or whole object hashcode.
+  - We take the latest entry ( OrderBy Id Desc) for multiple metadata linked to same video.

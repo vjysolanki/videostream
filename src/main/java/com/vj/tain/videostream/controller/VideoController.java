@@ -29,16 +29,18 @@ public class VideoController {
         return ResponseEntity.status(HttpStatus.CREATED).body(savedVideo); // returning the saved video
     }
 
-    @PutMapping("/{videoId}/delist")
-    public ResponseEntity<Video> delistVideo(@PathVariable String videoId) {
+    @DeleteMapping("/{videoId}")
+    public ResponseEntity<Video> delistVideo(@PathVariable String videoId, @RequestParam(defaultValue = "false") boolean soft) {
         if (null == videoId || videoId.isBlank()) {
             throw new IllegalArgumentException("[ERROR] - Video ID is missing!!");
         }
+
+        // TODO: handle hard delete if required
         Video videoToDelist = videoService.delist(videoId);
         return ResponseEntity.ok(videoToDelist);
     }
 
-    @GetMapping("/{videoId}")
+    @GetMapping("/{videoId}/load")
     public ResponseEntity<VideoDetailsDTO> loadVideoById(@PathVariable String videoId) {
         if (null == videoId || videoId.isBlank()) {
             throw new IllegalArgumentException("[ERROR] - Video ID is missing!!");
@@ -56,22 +58,18 @@ public class VideoController {
         return ResponseEntity.ok(videoUrl);
     }
 
-
     @GetMapping
     public ResponseEntity<List<VideoMetadataDTO>> listAllVideos() {
         List<VideoMetadataDTO> videos = videoService.listAllVideosWithPartialMetadata();
         return ResponseEntity.ok(videos);
     }
 
-    @GetMapping("/all")
+    @GetMapping("/only")
     public ResponseEntity<List<Video>> listAllVideosWithFullDetails() {
         List<Video> videoList = videoService.listAll();
         return ResponseEntity.ok(videoList);
     }
 
-
-    //Search
-    //use - /videos/search?director=SomeDirectorName&genre=Action
     @GetMapping("/search")
     public ResponseEntity<?> searchVideos(
             @RequestParam(value = "director", required = false) String directorName,
@@ -79,13 +77,7 @@ public class VideoController {
             @RequestParam(value = "crew", required = false) String crewName
     ) {
 
-        List<VideoMetadataDTO> videos = null;
-//        if (directorName == null && genre == null && crewName == null) {
-//            videos = videoService.listAllVideosWithPartialMetadata();
-//        } else
-        {
-            videos = videoService.searchVideos(directorName, genre, crewName);
-        }
+        List<VideoMetadataDTO> videos = videoService.searchVideos(directorName, genre, crewName);
 
         return ResponseEntity.ok(videos);
     }

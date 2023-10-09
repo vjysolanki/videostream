@@ -19,9 +19,6 @@ public class MetadataController {
     @PostMapping
     public ResponseEntity<Metadata> addMetadata(@PathVariable String videoId,
                                                 @Valid @RequestBody Metadata metadata) {
-//        if (!videoId.equals(metadata.getVideoId())) {
-//            throw new IllegalArgumentException("[ERROR] - Video ID in the path does not match the video ID in the request body.");
-//        }
         Metadata savedMetadata = metadataService.add(videoId,metadata);
         return new ResponseEntity<>(savedMetadata, HttpStatus.CREATED);
     }
@@ -29,10 +26,6 @@ public class MetadataController {
     @PutMapping
     public ResponseEntity<Metadata> updateMetadata(@PathVariable String videoId,
                                                    @Valid @RequestBody Metadata metadata) {
-//        if (!videoId.equals(metadata.getVideoId())) {
-//            throw new IllegalArgumentException("[ERROR] - Video ID in the path does not match the video ID in the request body.");
-//        }
-
         Metadata updatedMetadata = metadataService.update(videoId, metadata);
         return new ResponseEntity<>(updatedMetadata, HttpStatus.OK);
     }

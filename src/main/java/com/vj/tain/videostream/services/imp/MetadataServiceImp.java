@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityExistsException;
 import javax.persistence.EntityNotFoundException;
 import java.util.Optional;
 
@@ -22,6 +23,10 @@ public class MetadataServiceImp implements MetadataService {
 
     @Override
     public Metadata add(String vId, Metadata metadata) {
+        //avoid multiple metadata for same video id
+        if(metadataRepository.findByVideoId(vId).isPresent()) {
+            throw new EntityExistsException("[ERROR] - Metadata already exists for this videoId " + vId);
+        }
         metadata.setVideoId(vId);
         return save(metadata);
     }
@@ -33,6 +38,7 @@ public class MetadataServiceImp implements MetadataService {
 
         newMetadata.setId(existingMetadata.getId());
         newMetadata.setVideoId(existingMetadata.getVideoId());
+        newMetadata.setVersion(existingMetadata.getVersion());
 
         return save(newMetadata);
     }
@@ -58,7 +64,11 @@ public class MetadataServiceImp implements MetadataService {
                 .orElseThrow(() -> new EntityNotFoundException("[ERROR] - Metadata you are trying to access doesn't exist!!"));
     }
 
-    public Metadata getByVideoId(String vId) {
+    @Override
+    public Optional<Metadata> getOptionalByVideoId(String vId) {
+        return metadataRepository.findByVideoId(vId);
+    }
+    private Metadata getByVideoId(String vId) {
         return metadataRepository.findByVideoId(vId)
                 .orElseThrow(() -> new EntityNotFoundException("[ERROR] - Metadata you are trying to access for videoId " + vId + " doesn't exist!!"));
     }
@@ -66,7 +76,7 @@ public class MetadataServiceImp implements MetadataService {
     @Override
     public Optional<Metadata> delist(String vId) {
 
-        Optional<Metadata> existingMetadata = metadataRepository.findByVideoId(vId);
+        Optional<Metadata> existingMetadata = getOptionalByVideoId(vId);
         if (existingMetadata.isEmpty()) {
             return Optional.empty();
         }
@@ -77,7 +87,7 @@ public class MetadataServiceImp implements MetadataService {
 
     @Transactional
     private Optional<Metadata> deleteByVideoId(String vId) {
-        Optional<Metadata> existingMetadata = metadataRepository.findByVideoId(vId);
+        Optional<Metadata> existingMetadata = getOptionalByVideoId(vId);
         if (existingMetadata.isEmpty()) {
             return Optional.empty();
         }

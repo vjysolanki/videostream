@@ -7,5 +7,4 @@ import java.util.Optional;
 
 public interface MetadataRepository extends JpaRepository<Metadata, String> {
     Optional<Metadata> findByVideoId(String videoId);
-
 }

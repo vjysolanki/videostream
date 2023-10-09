@@ -11,6 +11,8 @@ import lombok.NoArgsConstructor;
 public class VideoDetailsDTO {
     private String id;
     private String content; // from Video
+    private boolean delisted;
     private Metadata metadata; // entire metadata entity
+
     // getters and setters
 }

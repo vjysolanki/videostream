@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class VideoServiceImp implements VideoService {
@@ -44,13 +45,15 @@ public class VideoServiceImp implements VideoService {
     @Override
     public VideoDetailsDTO load(String videoId) {
         Video existingVideo = getById(videoId);
-        Metadata metadata = metadataService.getByVideoId(videoId);
 
         VideoDetailsDTO videoDetails = new VideoDetailsDTO();
         videoDetails.setId(existingVideo.getId());
         videoDetails.setContent(existingVideo.getContent());
-        videoDetails.setMetadata(metadata);
-
+        videoDetails.setDelisted(existingVideo.isDelisted());
+        Optional<Metadata> metadata = metadataService.getOptionalByVideoId(videoId);
+        if (metadata.isPresent()) {
+            videoDetails.setMetadata(metadata.get());
+        }
         // Increment the impressions count
         existingVideo.setImpressions(existingVideo.getImpressions() + 1);
         save(existingVideo);
@@ -97,9 +100,7 @@ public class VideoServiceImp implements VideoService {
 //
     @Override
     public List<VideoMetadataDTO> searchVideos(String director, String genre, String crew) {
-//        return videoRepository.search(director, genre, crew);
-        //FIXME: uncomment above line
-        return null;
+        return videoRepository.search(director,genre,crew);
     }
 
     @Override

@@ -1,10 +1,12 @@
 package com.vj.tain.videostream.exceptionhandler;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import javax.persistence.EntityExistsException;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.OptimisticLockException;
 
@@ -25,5 +27,11 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> entityNotFoundExceptionHandler(final EntityNotFoundException e) {
         return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
     }
+
+    @ExceptionHandler(EntityExistsException.class)
+    public ResponseEntity<String> handleDuplicateMetadata(EntityExistsException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
 
 }

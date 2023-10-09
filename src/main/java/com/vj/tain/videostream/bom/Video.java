@@ -1,6 +1,7 @@
 package com.vj.tain.videostream.bom;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -25,10 +26,12 @@ public class Video {
             strategy = "org.hibernate.id.UUIDGenerator"
     )
     @Column(name = "id", updatable = false, nullable = false, columnDefinition = "VARCHAR(36)")
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     private String id;
 
     @NotBlank(message = "Video contents cannot be empty!")
     private String content;  // mock video content (string)
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     private boolean delisted; // for soft delete
     // Analytics
     @JsonIgnore
