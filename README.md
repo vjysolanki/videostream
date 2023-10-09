@@ -2,7 +2,8 @@
 A REST API project for Tain Video Streaming. The project is built with following:
 * Java 17
 * Build tool: Maven 3.9+
-* Backend framework: Sprint-boot
+* Backend framework: 
+  * Sprint-boot 2.7.16
   * H2 Database
   * OpenAPI for API UI.
 
@@ -25,43 +26,44 @@ A REST API project for Tain Video Streaming. The project is built with following
 
 ### H2 Database:
 * You can view the contents of the H2 database by navigating to http://localhost:8080/h2-console in a web browser. Make sure to configure the JDBC URL as jdbc:h2:mem:testdb to connect to the database.
+
 ## REST API Exposed: 
 
 Following rest APIs are exposed. For all the below mentioned API, we can test them with swagger exposed API or use curl as given under usage. 
 
 ### Video
-#### publishVideo
+#### publish a video
 PUT api to update an existing video metadata in store. If the video doesnt exist, then returns 400.
 
 `curl -X POST 'http://localhost:8080/videos' \
 -H 'Content-Type: application/json' \
 -d '{
-"content": "Your Video Content",
-"delisted": false
+"content": "Your Video Content"
 }'`
 
 
-#### delistVideo
+#### soft delete video 
 
-[//]: # (`curl -X PUT 'http://localhost:8080/videos/<videoId>/delist'`)
 `curl -X DELETE "http://localhost:8080/videos/<videoId>?soft=true"
 `
 
-#### loadVideo
-`curl -X GET 'http://localhost:8080/videos/<videoId>'`
+#### load video
+`curl -X GET 'http://localhost:8080/videos/<videoId>/load'`
 
-#### playVideo
+#### play video
 `curl -X GET 'http://localhost:8080/videos/<videoId>/play'`
 
-#### listAllVideos
+#### List all available videos
+This should only a subset of the video metadata
+such as: Title, Director, Main Actor, Genre and Running Time.
 `curl -X GET 'http://localhost:8080/videos'`
 
-#### listAllVideosWithFullDetails
-GET WS to get all the videos which exist in the store.
+#### list only videos
+GET WS to get only video without metadata which exist in the store.
 
-`curl -X GET 'http://localhost:8080/videos/all'`
+`curl -X GET 'http://localhost:8080/videos/only'`
 
-#### searchVideos
+#### search videos
 - Without any search criteria:
 
 `curl -X GET 'http://localhost:8080/videos/search'`
@@ -70,11 +72,16 @@ GET WS to get all the videos which exist in the store.
 
 `curl -X GET 'http://localhost:8080/videos/search?director=SomeDirectorName&crew=SomeCrewName&genre=SomeGenre'`
 
-#### retrieveVideoEngagement
+#### retrieve video engagement
+Retrieve the engagement statistic for a video. Engagement can be split in 2:
+- Impressions – A client loading a video.
+- Views – A client playing a video.
 `curl -X GET 'http://localhost:8080/videos/<videoId>/engagement'`
 
 ### Metadata
 #### add metadata 
+The metadata associated with the video.
+
 `curl -X POST "http://localhost:8080/videos/<videoId>/metadata" \
 -H "Content-Type: application/json" \
 -d '{
@@ -89,6 +96,8 @@ GET WS to get all the videos which exist in the store.
 }'
 `
 ### update metadata
+Add and Edit the metadata associated with the video
+
 `curl -X PUT "http://localhost:8080/videos/<videoId>/metadata" \
 -H "Content-Type: application/json" \
 -d '{
@@ -103,6 +112,15 @@ GET WS to get all the videos which exist in the store.
 }'
 `
 
+### Exception 
+- IllegalArgumentException
+ - Missing or Invalid user input
+- EntityNotFoundException
+ - Referred Video or Metadata does not exists in DB
+- EntityExistsException
+ - Referred Video or Metadata already exists in DB 
+- OptimisticLockException
+ - Concurrent update for same record 
 ## Test Coverage
 
 Classes: % 
@@ -110,15 +128,8 @@ Lines: %
 
 Full report screenshot below:
 
-
-# Note
-
-3. logging
-5. test cases 
-
-
-## Improvements
-- Current system does not identify duplicate contents meaning you can publish same video or metadata multiple times
-as ID for both are system generated UUID and generates when we push Video or Metadata. This can be handled by comparing
-values or whole object hashcode.
-  - We take the latest entry ( OrderBy Id Desc) for multiple metadata linked to same video.
+## Assumption and Improvements
+- Service is implemented based on assumption that video and metadata will have 1-1 relationship 
+- Video contents are assumed as String that can be extended to take bytes 
+- For Play operation, system return mocked url location where videos are stored instead of actual video contents passed ( player need to download the video from url)
+- Current system uses H2 in memory database which can later be extended to permanents storage like postgres etc.

@@ -8,6 +8,7 @@ import com.vj.tain.videostream.dto.VideoMetadataDTO;
 import com.vj.tain.videostream.repository.VideoRepository;
 import com.vj.tain.videostream.services.api.MetadataService;
 import com.vj.tain.videostream.services.api.VideoService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,13 +36,6 @@ public class VideoServiceImp implements VideoService {
                 .orElseThrow(() -> new EntityNotFoundException("[ERROR] - Video you are trying to access doesn't exist!!"));
     }
 
-    //    @Override
-//    public Video load(String vId) {
-//        Video existingVideo = getById(vId);
-//        // Increment the impressions count
-//        existingVideo.setImpressions(existingVideo.getImpressions() + 1);
-//        return save(existingVideo);
-//    }
     @Override
     public VideoDetailsDTO load(String videoId) {
         Video existingVideo = getById(videoId);
@@ -93,14 +87,9 @@ public class VideoServiceImp implements VideoService {
         return videoRepository.findAllProjectedBy();
     }
 
-    //    @Override
-//    public List<VideoMetadataProjection> findVideosByDirector(String director) {
-//        return videoRepository.findByDirector(director);
-//    }
-//
     @Override
     public List<VideoMetadataDTO> searchVideos(String director, String genre, String crew) {
-        return videoRepository.search(director,genre,crew);
+        return videoRepository.search(director, genre, crew);
     }
 
     @Override
