@@ -1,4 +1,4 @@
-package com.vj.tain.videostream.bom;
+package com.vj.tain.videostream.utils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;

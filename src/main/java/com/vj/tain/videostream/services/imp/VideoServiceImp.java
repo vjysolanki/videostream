@@ -1,24 +1,105 @@
 package com.vj.tain.videostream.services.imp;
 
+import com.vj.tain.videostream.bom.Metadata;
 import com.vj.tain.videostream.bom.Video;
+import com.vj.tain.videostream.dto.EngagementDTO;
+import com.vj.tain.videostream.dto.VideoDetailsDTO;
+import com.vj.tain.videostream.dto.VideoMetadataDTO;
 import com.vj.tain.videostream.repository.VideoRepository;
+import com.vj.tain.videostream.services.api.MetadataService;
 import com.vj.tain.videostream.services.api.VideoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class VideoServiceImp implements VideoService {
     @Autowired
     private VideoRepository videoRepository;
 
+    @Autowired
+    private MetadataService metadataService;
+
     public Video publish(Video video) {
         video.setImpressions(0); // set initial impressions to 0
         video.setViews(0); // set initial views to 0
-        return saveVideo(video);
+        return save(video);
+    }
+
+    private Video getById(String vId) {
+        return videoRepository.findById(vId)
+                .orElseThrow(() -> new EntityNotFoundException("[ERROR] - Video you are trying to access doesn't exist!!"));
+    }
+
+    //    @Override
+//    public Video load(String vId) {
+//        Video existingVideo = getById(vId);
+//        // Increment the impressions count
+//        existingVideo.setImpressions(existingVideo.getImpressions() + 1);
+//        return save(existingVideo);
+//    }
+    @Override
+    public VideoDetailsDTO load(String videoId) {
+        Video existingVideo = getById(videoId);
+        Metadata metadata = metadataService.getByVideoId(videoId);
+
+        VideoDetailsDTO videoDetails = new VideoDetailsDTO();
+        videoDetails.setId(existingVideo.getId());
+        videoDetails.setContent(existingVideo.getContent());
+        videoDetails.setMetadata(metadata);
+
+        // Increment the impressions count
+        existingVideo.setImpressions(existingVideo.getImpressions() + 1);
+        save(existingVideo);
+        return videoDetails;
+    }
+
+    @Transactional
+    @Override
+    public Video delist(String vId) {
+        Video videoToDelist = getById(vId);
+
+        videoToDelist.setDelisted(true);
+//        XXX: Hard Delete metadata ?
+        //soft delete metadata
+        metadataService.delist(vId);
+        return save(videoToDelist);
+    }
+
+    @Override
+    public String play(String vId) {
+        Video playableVideo = getById(vId);
+        //some logic to find the video location that used by the player to load video from.
+        // System may build a URL here and return that
+        playableVideo.setViews(playableVideo.getViews() + 1);
+        save(playableVideo);
+        return String.format("https://mocked_video_url.com/%s", vId);
+    }
+
+    @Transactional
+    @Override
+    public Video save(Video video) {
+        return videoRepository.save(video);
+    }
+
+    @Override
+    public List<VideoMetadataDTO> listAllVideosWithPartialMetadata() {
+        return videoRepository.findAllProjectedBy();
+    }
+
+    //    @Override
+//    public List<VideoMetadataProjection> findVideosByDirector(String director) {
+//        return videoRepository.findByDirector(director);
+//    }
+//
+    @Override
+    public List<VideoMetadataDTO> searchVideos(String director, String genre, String crew) {
+//        return videoRepository.search(director, genre, crew);
+        //FIXME: uncomment above line
+        return null;
     }
 
     @Override
@@ -27,55 +108,11 @@ public class VideoServiceImp implements VideoService {
     }
 
     @Override
-    public Video updateMetadata(String vId, Video metadata) {
+    public EngagementDTO getEngagementStats(String videoId) {
+        Video video = videoRepository.findById(videoId)
+                .orElseThrow(() -> new EntityNotFoundException("Video not found with ID: " + videoId));
 
-        Video existingVideo = videoRepository.findById(vId).orElseThrow(() -> new IllegalArgumentException("[ERROR] - Video you are trying to update doesn't exist!!"));
-
-        Video updatedVideo = existingVideo.toBuilder()
-                .title(Optional.ofNullable(metadata.getTitle()).orElse(existingVideo.getTitle()))
-                .synopsis(Optional.ofNullable(metadata.getSynopsis()).orElse(existingVideo.getSynopsis()))
-                .director(Optional.ofNullable(metadata.getDirector()).orElse(existingVideo.getDirector()))
-                .crew(Optional.ofNullable(metadata.getCrew()).filter(crewList -> !crewList.isEmpty()).orElse(existingVideo.getCrew()))
-                .yearOfRelease(updateIfNull(metadata.getYearOfRelease(), existingVideo.getYearOfRelease()))
-                .genre(Optional.ofNullable(metadata.getGenre()).orElse(existingVideo.getGenre()))
-                .runningTime(updateIfNull(metadata.getRunningTime(), existingVideo.getRunningTime()))
-                .format(Optional.ofNullable(metadata.getFormat()).orElse(existingVideo.getFormat()))
-                .build();
-
-        return saveVideo(updatedVideo);
+        return new EngagementDTO(video.getImpressions(), video.getViews());
     }
-
-    @Override
-    public Video delist(String vId) {
-        Video videoToDelist = videoRepository.findById(vId).orElseThrow(() -> new IllegalArgumentException("[ERROR] - Video you are trying to delist doesn't exist!!"));
-        videoToDelist.setDelisted(true);
-        return saveVideo(videoToDelist);
-    }
-
-    @Override
-    public Video getById(String vId) {
-        return videoRepository.findById(vId)
-                .orElseThrow(() -> new IllegalArgumentException("[ERROR] - Video you are trying to access doesn't exist!!"));
-    }
-
-    @Override
-    public String playVideo(String vId) {
-        Video playableVideo = videoRepository.findById(vId)
-                .orElseThrow(() -> new IllegalArgumentException("[ERROR] - Video you are trying to play doesn't exist!!"));
-
-        //some logic to find the video location that used by the player to load video from.
-        // System may build a URL here and return that
-        return String.format("https://mocked_video_url.com/%s/%s", vId, playableVideo.getFormat());
-    }
-
-    @Transactional
-    private Video saveVideo(Video video) {
-        return videoRepository.save(video);
-    }
-
-    private <T> T updateIfNull(T newValue, T currentValue) {
-        return newValue == null ? currentValue : newValue;
-    }
-
 
 }

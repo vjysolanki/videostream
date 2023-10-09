@@ -1,20 +1,31 @@
 package com.vj.tain.videostream.services.api;
 
 import com.vj.tain.videostream.bom.Video;
+import com.vj.tain.videostream.dto.EngagementDTO;
+import com.vj.tain.videostream.dto.VideoDetailsDTO;
+import com.vj.tain.videostream.dto.VideoMetadataDTO;
 
 import java.util.List;
-import java.util.UUID;
 
 public interface VideoService {
-    Video publish(Video video);
+    public Video publish(Video video);
 
-    List<Video> listAll();
+    public VideoDetailsDTO load(String vId);
 
-    Video updateMetadata(String vId, Video video);
+    public Video delist(String vId);
 
-    Video delist(String vId);
+    public String play(String vId);
 
-    Video getById(String vId);
+    public Video save(Video video);
 
-    String playVideo(String vId);
+    List<VideoMetadataDTO> listAllVideosWithPartialMetadata();
+
+//    List<VideoMetadataProjection> findVideosByDirector(String director);
+
+    public List<Video> listAll();
+
+    List<VideoMetadataDTO> searchVideos(String director, String genre, String crew);
+
+    EngagementDTO getEngagementStats(String videoId);
+
 }
