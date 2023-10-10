@@ -29,9 +29,9 @@ public interface VideoRepository extends JpaRepository<Video, String> {
     @Query("SELECT new com.vj.tain.videostream.dto.VideoMetadataDTO(m.title, m.director, m.crew, m.genre, m.runningTime) " +
             "FROM Video v, Metadata m " +
             "WHERE v.id = m.videoId " +
-            "AND (:director IS NULL OR m.director = :director) " +
-            "AND (:genre IS NULL OR m.genre LIKE %:genre%)" +
-            "AND (:crew IS NULL OR m.crew LIKE CONCAT('%', :crew, '%'))")
+            "AND (:director IS NULL OR LOWER(m.director) = LOWER(:director)) " +
+            "AND (:genre IS NULL OR LOWER(m.genre) LIKE CONCAT('%', LOWER(:genre), '%'))" +
+            "AND (:crew IS NULL OR LOWER(m.crew) LIKE CONCAT('%', LOWER(:crew), '%'))")
     List<VideoMetadataDTO> search(@Param("director") String director, @Param("genre") String genre, @Param("crew") String crew);
 
 }

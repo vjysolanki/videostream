@@ -31,7 +31,7 @@ public class VideoController {
 
     @DeleteMapping("/{videoId}")
     public ResponseEntity<Video> delistVideo(@PathVariable String videoId, @RequestParam(defaultValue = "false") boolean soft) {
-        idValidation(videoId);
+        validateVideoId(videoId);
         // XXX: handle hard delete if required
         Video videoToDelist = videoService.delist(videoId);
         return ResponseEntity.ok(videoToDelist);
@@ -39,14 +39,14 @@ public class VideoController {
 
     @GetMapping("/{videoId}/load")
     public ResponseEntity<VideoDetailsDTO> loadVideoById(@PathVariable String videoId) {
-        idValidation(videoId);
+        validateVideoId(videoId);
         VideoDetailsDTO videoToReturn = videoService.load(videoId);
         return ResponseEntity.ok(videoToReturn);
     }
 
     @GetMapping("/{videoId}/play")
     public ResponseEntity<String> playVideo(@PathVariable String videoId) {
-        idValidation(videoId);
+        validateVideoId(videoId);
         String videoUrl = videoService.play(videoId);
         return ResponseEntity.ok(videoUrl);
     }
@@ -77,12 +77,12 @@ public class VideoController {
 
     @GetMapping("/{videoId}/engagement")
     public ResponseEntity<EngagementDTO> getVideoEngagement(@PathVariable String videoId) {
-        idValidation(videoId);
+        validateVideoId(videoId);
         EngagementDTO engagement = videoService.getEngagementStats(videoId);
         return ResponseEntity.ok(engagement);
     }
 
-    private static void idValidation(String videoId) {
+    private void validateVideoId(String videoId) {
         if (null == videoId || videoId.isBlank()) {
             throw new IllegalArgumentException("[ERROR] - Video ID is missing!!");
         }

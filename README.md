@@ -52,13 +52,15 @@ Detailed API information is given below:
 ### Video
 
 #### Publish a Video
+POST API to publish a new video using base64 encoded content.
 
-`bash
-curl -X POST 'http://localhost:8080/videos' \
--H 'Content-Type: application/json' \
+`curl -X POST 'http://localhost:8080/videos' 
+-H 'Content-Type: application/json' 
 -d '{
-"content": "Your Video Content"
-}'`
+"base64RawContents": "YourBase64EncodedVideoContentHere"
+}'
+`
+
 
 #### Soft delete a video 
 
@@ -81,7 +83,8 @@ GET WS to get only video without metadata that exist in the store.
 
 `curl -X GET 'http://localhost:8080/videos/only'`
 
-#### Search videos
+#### Search videos ()
+ 
 - Without any search criteria:
 
 `curl -X GET 'http://localhost:8080/videos/search'`
@@ -155,3 +158,10 @@ Full report screenshot below:
 - **Data Validation:** There's room for enhanced data validation. Certain fields, such as runtime or release year, should be subjected to checks ensuring their validity (e.g., runtime must be positive, and release year should be within plausible ranges).
 - **Playback Mechanism:** As of now, the 'Play' operation fetches a mock URL, suggesting the video's storage location, rather than the direct video content. While this emulates real-world streaming services (where a player fetches content from a provided URL), a complete solution might involve integrating an actual content delivery system or leveraging cloud services for video streaming.
 - **Database Choices:** The application presently utilizes an H2 in-memory database. This choice is optimal for development or demonstration purposes due to its simplicity and ephemeral nature. For production-grade applications or longer-term storage, transitioning to more robust databases, such as PostgreSQL, would be advisable.
+
+
+
+## References
+- https://docs.spring.io/spring-data/jpa/docs/current/reference/html/
+- https://www.baeldung.com/spring-data-jpa-query
+- https://www.baeldung.com/spring-boot-h2-database
