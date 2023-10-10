@@ -34,7 +34,7 @@ A REST API project for Tain Video Streaming. The project is built with following
 Following rest APIs are exposed. For all the below mentioned API, we can test them with swagger exposed API or use curl as given under usage. 
 
 ### Video
-#### publish a video
+#### Publish a video
 PUT api to update an existing video metadata in store. If the video doesnt exist, then returns 400.
 
 `curl -X POST 'http://localhost:8080/videos' \
@@ -44,28 +44,28 @@ PUT api to update an existing video metadata in store. If the video doesnt exist
 }'`
 
 
-#### soft delete video 
+#### Soft delete a video 
 
 `curl -X DELETE "http://localhost:8080/videos/<videoId>?soft=true"
 `
 
-#### load video
+#### Load a video
 `curl -X GET 'http://localhost:8080/videos/<videoId>/load'`
 
-#### play video
+#### Play video
 `curl -X GET 'http://localhost:8080/videos/<videoId>/play'`
 
 #### List all available videos
-This should only a subset of the video metadata
+This should only be a subset of the video metadata
 such as: Title, Director, Main Actor, Genre and Running Time.
 `curl -X GET 'http://localhost:8080/videos'`
 
-#### list only videos
-GET WS to get only video without metadata which exist in the store.
+#### List only videos without metadata ( mostly for testing )
+GET WS to get only video without metadata that exist in the store.
 
 `curl -X GET 'http://localhost:8080/videos/only'`
 
-#### search videos
+#### Search videos
 - Without any search criteria:
 
 `curl -X GET 'http://localhost:8080/videos/search'`
@@ -74,14 +74,14 @@ GET WS to get only video without metadata which exist in the store.
 
 `curl -X GET 'http://localhost:8080/videos/search?director=SomeDirectorName&crew=SomeCrewName&genre=SomeGenre'`
 
-#### retrieve video engagement
+#### Retrieve a video engagement
 Retrieve the engagement statistic for a video. Engagement can be split in 2:
 - Impressions – A client loading a video.
 - Views – A client playing a video.
 `curl -X GET 'http://localhost:8080/videos/<videoId>/engagement'`
 
 ### Metadata
-#### add metadata 
+#### Add metadata 
 The metadata associated with the video.
 
 `curl -X POST "http://localhost:8080/videos/<videoId>/metadata" \
@@ -97,7 +97,7 @@ The metadata associated with the video.
 "format": "HD"
 }'
 `
-### update metadata
+### Update metadata
 Add and Edit the metadata associated with the video
 
 `curl -X PUT "http://localhost:8080/videos/<videoId>/metadata" \
@@ -114,15 +114,15 @@ Add and Edit the metadata associated with the video
 }'
 `
 
-### Exception 
+## Exceptions 
 - IllegalArgumentException
- - Missing or Invalid user input
+  - Missing or Invalid user input
 - EntityNotFoundException
- - Referred Video or Metadata does not exists in DB
+  - Referred Video or Metadata does not exist in DB
 - EntityExistsException
- - Referred Video or Metadata already exists in DB 
+  - Referred Video or Metadata already exists in DB 
 - OptimisticLockException
- - Concurrent update for same record 
+  - Concurrent update for the same record 
 ## Test Coverage
 
 Classes: 100%
@@ -133,7 +133,8 @@ Full report screenshot below:
 
 
 ## Assumption and Improvements
-- Service is implemented based on assumption that video and metadata will have 1-1 relationship 
-- Video contents are assumed as String that can be extended to take bytes 
-- For Play operation, system return mocked url location where videos are stored instead of actual video contents passed ( player need to download the video from url)
-- Current system uses H2 in memory database which can later be extended to permanents storage like postgres etc.
+- Service is implemented based on the assumption that video and metadata will have a 1-1 relationship 
+- Video contents are assumed as String that can be extended to take bytes
+- Data validation needs to be implemented for instance time or  year  > 0 etc 
+- For Play operation, the system returns a mocked URL location where videos are stored instead of actual video contents passed (the player needs to download the video from the URL)
+- The current system uses H2 in the memory database which can later be extended to permanent storage like Postgres etc.
