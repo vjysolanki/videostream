@@ -23,6 +23,8 @@ A REST API project for Tain Video Streaming. The project is built with following
 * Server is launched on 8080 port. Target on http://localhost:8080/videos
 ### Swagger API:
 * To access the interactive API (openAPI) on: http://localhost:8080/swagger-ui/index.html
+* <img width="1512" alt="image" src="https://github.com/vjysolanki/videostream/assets/89914381/1e81272b-7724-4330-85d3-df8f6f9b3124">
+
 
 ### H2 Database:
 * You can view the contents of the H2 database by navigating to http://localhost:8080/h2-console in a web browser. Make sure to configure the JDBC URL as jdbc:h2:mem:testdb to connect to the database.
@@ -123,10 +125,12 @@ Add and Edit the metadata associated with the video
  - Concurrent update for same record 
 ## Test Coverage
 
-Classes: % 
-Lines: %
+Classes: 100%
+Lines: 85%
 
 Full report screenshot below:
+<img width="728" alt="image" src="https://github.com/vjysolanki/videostream/assets/89914381/4ce61f47-b0e6-4b2b-8698-2a1704e95595">
+
 
 ## Assumption and Improvements
 - Service is implemented based on assumption that video and metadata will have 1-1 relationship 
