@@ -1,69 +1,87 @@
 # Video Streaming API
-A REST API project for Tain Video Streaming. The project is built with following:
-* Java 17
-* Build tool: Maven 3.9+
-* Backend framework: 
-  * Sprint-boot 2.7.16
-  * H2 Database
-  * OpenAPI for API UI.
+
+A REST API project for Tain Video Streaming.
+
+## Tech Stack
+- **Java**: 17
+- **Build Tool**: Maven 3.9+
+- **Backend Framework**: 
+  - Spring Boot 2.7.16
+  - H2 In-memory Database
+  - OpenAPI for API documentation
 
 ## Howto's:
 
-### Build the project: 
-* Checkout the project.
-* Build the project with maven: 
-    
-    `mvn clean install`
+### Building the Project
 
-### Launching the server:
-* After the build is done launch the server with following:
+1. Clone the repository.
+2. Build the project using maven:
 
-    `mvn spring-boot:run`
+    ```bash
+    mvn clean install
+    ```
 
-* Server is launched on 8080 port. Target on http://localhost:8080/videos
-### Swagger API:
-* To access the interactive API (openAPI) on: http://localhost:8080/swagger-ui/index.html
+### Launching the Server
 
-### H2 Database:
-* You can view the contents of the H2 database by navigating to http://localhost:8080/h2-console in a web browser. Make sure to configure the JDBC URL as jdbc:h2:mem:testdb to connect to the database.
+1. After building, launch the server using:
 
-## REST API Exposed: 
+    ```bash
+    mvn spring-boot:run
+    ```
 
-Following rest APIs are exposed. For all the below mentioned API, we can test them with swagger exposed API or use curl as given under usage. 
+2. The server starts on port 8080. Access it via: http://localhost:8080/videos
+
+### Swagger API
+
+Access the interactive API (OpenAPI) documentation at: 
+http://localhost:8080/swagger-ui/index.html
+
+![Swagger Screenshot](https://github.com/vjysolanki/videostream/assets/89914381/1e81272b-7724-4330-85d3-df8f6f9b3124)
+
+### H2 Database
+
+To view the contents of the H2 database, navigate to: 
+http://localhost:8080/h2-console 
+
+Remember to set the JDBC URL as `jdbc:h2:mem:testdb` to connect.
+
+## REST API Exposed
+
+Detailed API information is given below:
 
 ### Video
-#### publish a video
-PUT api to update an existing video metadata in store. If the video doesnt exist, then returns 400.
 
-`curl -X POST 'http://localhost:8080/videos' \
+#### Publish a Video
+
+`bash
+curl -X POST 'http://localhost:8080/videos' \
 -H 'Content-Type: application/json' \
 -d '{
 "content": "Your Video Content"
 }'`
 
-
-#### soft delete video 
+#### Soft delete a video 
 
 `curl -X DELETE "http://localhost:8080/videos/<videoId>?soft=true"
 `
 
-#### load video
+#### Load a video
 `curl -X GET 'http://localhost:8080/videos/<videoId>/load'`
 
-#### play video
+#### Play video
 `curl -X GET 'http://localhost:8080/videos/<videoId>/play'`
 
 #### List all available videos
-This should only a subset of the video metadata
+This should only be a subset of the video metadata
 such as: Title, Director, Main Actor, Genre and Running Time.
 `curl -X GET 'http://localhost:8080/videos'`
 
-#### list only videos
-GET WS to get only video without metadata which exist in the store.
+#### List only videos without metadata ( mostly for testing )
+GET WS to get only video without metadata that exist in the store.
 
 `curl -X GET 'http://localhost:8080/videos/only'`
 
-#### search videos
+#### Search videos
 - Without any search criteria:
 
 `curl -X GET 'http://localhost:8080/videos/search'`
@@ -72,14 +90,14 @@ GET WS to get only video without metadata which exist in the store.
 
 `curl -X GET 'http://localhost:8080/videos/search?director=SomeDirectorName&crew=SomeCrewName&genre=SomeGenre'`
 
-#### retrieve video engagement
+#### Retrieve a video engagement
 Retrieve the engagement statistic for a video. Engagement can be split in 2:
 - Impressions – A client loading a video.
 - Views – A client playing a video.
 `curl -X GET 'http://localhost:8080/videos/<videoId>/engagement'`
 
 ### Metadata
-#### add metadata 
+#### Add metadata 
 The metadata associated with the video.
 
 `curl -X POST "http://localhost:8080/videos/<videoId>/metadata" \
@@ -95,7 +113,7 @@ The metadata associated with the video.
 "format": "HD"
 }'
 `
-### update metadata
+### Update metadata
 Add and Edit the metadata associated with the video
 
 `curl -X PUT "http://localhost:8080/videos/<videoId>/metadata" \
@@ -112,24 +130,28 @@ Add and Edit the metadata associated with the video
 }'
 `
 
-### Exception 
+## Exceptions 
 - IllegalArgumentException
- - Missing or Invalid user input
+  - Missing or Invalid user input
 - EntityNotFoundException
- - Referred Video or Metadata does not exists in DB
+  - Referred Video or Metadata does not exist in DB
 - EntityExistsException
- - Referred Video or Metadata already exists in DB 
+  - Referred Video or Metadata already exists in DB 
 - OptimisticLockException
- - Concurrent update for same record 
+  - Concurrent update for the same record 
 ## Test Coverage
 
-Classes: % 
-Lines: %
-
+**Classes**: 100% <br>
+**Lines**: 85% <br>
 Full report screenshot below:
 
-## Assumption and Improvements
-- Service is implemented based on assumption that video and metadata will have 1-1 relationship 
-- Video contents are assumed as String that can be extended to take bytes 
-- For Play operation, system return mocked url location where videos are stored instead of actual video contents passed ( player need to download the video from url)
-- Current system uses H2 in memory database which can later be extended to permanents storage like postgres etc.
+
+<img width="728" alt="image" src="https://github.com/vjysolanki/videostream/assets/89914381/4ce61f47-b0e6-4b2b-8698-2a1704e95595">
+
+
+## Assumptions and Improvements
+- **1-to-1 Relationship:** Currently, the service operates under the presumption that each video is uniquely associated with a single metadata entry.
+- **Video Content Encoding:** The system accepts video content as base64 encoded strings, which serve as a textual representation of the video's raw bytes
+- **Data Validation:** There's room for enhanced data validation. Certain fields, such as runtime or release year, should be subjected to checks ensuring their validity (e.g., runtime must be positive, and release year should be within plausible ranges).
+- **Playback Mechanism:** As of now, the 'Play' operation fetches a mock URL, suggesting the video's storage location, rather than the direct video content. While this emulates real-world streaming services (where a player fetches content from a provided URL), a complete solution might involve integrating an actual content delivery system or leveraging cloud services for video streaming.
+- **Database Choices:** The application presently utilizes an H2 in-memory database. This choice is optimal for development or demonstration purposes due to its simplicity and ephemeral nature. For production-grade applications or longer-term storage, transitioning to more robust databases, such as PostgreSQL, would be advisable.
