@@ -2,13 +2,14 @@ package com.vj.tain.videostream.services.api;
 
 import com.vj.tain.videostream.bom.Video;
 import com.vj.tain.videostream.dto.EngagementDTO;
+import com.vj.tain.videostream.dto.RawVideoDTO;
 import com.vj.tain.videostream.dto.VideoDetailsDTO;
 import com.vj.tain.videostream.dto.VideoMetadataDTO;
 
 import java.util.List;
 
 public interface VideoService {
-    public Video publish(Video video);
+    public Video publishRaw(RawVideoDTO rawVideoDTO);
 
     public VideoDetailsDTO load(String vId);
 

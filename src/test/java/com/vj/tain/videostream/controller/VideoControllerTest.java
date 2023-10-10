@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vj.tain.videostream.bom.Metadata;
 import com.vj.tain.videostream.bom.Video;
 import com.vj.tain.videostream.dto.EngagementDTO;
+import com.vj.tain.videostream.dto.RawVideoDTO;
 import com.vj.tain.videostream.dto.VideoDetailsDTO;
 import com.vj.tain.videostream.dto.VideoMetadataDTO;
 import com.vj.tain.videostream.services.imp.VideoServiceImp;
@@ -18,12 +19,13 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import javax.persistence.EntityExistsException;
 import javax.persistence.EntityNotFoundException;
+import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -40,12 +42,18 @@ class VideoControllerTest {
     private Metadata mockedMetadata;
     private Video mockedVideo;
 
+    private RawVideoDTO rawVideoDTO;
+    final private  String base64VideoContent = "SGVsbG8sIHdvcmxkIQ==";
+
     @BeforeEach
     public void setup() {
+        rawVideoDTO = new RawVideoDTO(base64VideoContent);
+        byte[] videoBytes = Base64.getDecoder().decode(rawVideoDTO.getBase64RawContents());
+
 
         mockedVideo = Video.builder()
                 .id(UUID.randomUUID().toString())
-                .content("Sample Content")
+                .base64RawContents(videoBytes)
                 .delisted(false)
                 .build();
 
@@ -63,13 +71,14 @@ class VideoControllerTest {
     }
     @Test
     public void testPublishVideo() throws Exception {
-        Mockito.when(videoService.publish(any(Video.class))).thenReturn(mockedVideo);
+        Mockito.when(videoService.publishRaw(any(RawVideoDTO.class))).thenReturn(mockedVideo);
 
         mockMvc.perform(post("/videos")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(new ObjectMapper().writeValueAsString(mockedVideo)))
                 .andExpect(status().isCreated())
                 .andExpect(content().json(new ObjectMapper().writeValueAsString(mockedVideo)));
+        verify(videoService).publishRaw(rawVideoDTO);
     }
 
     @Test
@@ -82,6 +91,7 @@ class VideoControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().json(new ObjectMapper().writeValueAsString(mockedVideo)));
+        verify(videoService).delist(videoId);
     }
 
 
@@ -95,6 +105,7 @@ class VideoControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().json(new ObjectMapper().writeValueAsString(videoDetails)));
+        verify(videoService).load(videoId);
     }
 
     @Test
@@ -107,6 +118,7 @@ class VideoControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().string(videoUrl));
+        verify(videoService).play(videoId);
     }
 
     @Test
@@ -118,6 +130,7 @@ class VideoControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().json(new ObjectMapper().writeValueAsString(videoMetadataList)));
+        verify(videoService).listAllVideosWithPartialMetadata();
     }
 
     @Test
@@ -129,6 +142,7 @@ class VideoControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().json(new ObjectMapper().writeValueAsString(videoList)));
+        verify(videoService).listAll();
     }
 
     @Test
@@ -141,6 +155,7 @@ class VideoControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().json(new ObjectMapper().writeValueAsString(engagement)));
+        verify(videoService).getEngagementStats(videoId);
     }
 
     @Test
@@ -153,6 +168,7 @@ class VideoControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().json(new ObjectMapper().writeValueAsString(videos)));
+        verify(videoService).searchVideos(any(), any(), any());
     }
 
     @Test
@@ -185,22 +201,37 @@ class VideoControllerTest {
                 .andExpect(status().isNotFound())
                 .andExpect(result -> assertTrue(result.getResolvedException() instanceof EntityNotFoundException))
                 .andExpect(result -> assertEquals("Video not found for ID: " + videoId, result.getResolvedException().getMessage()));
+
+        verify(videoService).load(videoId);
     }
 
     @Test
     public void testPublishVideo_AlreadyExists() throws Exception {
 
-        Mockito.when(videoService.publish(mockedVideo))
+        Mockito.when(videoService.publishRaw(rawVideoDTO))
                 .thenThrow(new EntityExistsException("Video with the same content already exists."));
 
         mockMvc.perform(post("/videos")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(mockedVideo)))
-                .andExpect(status().isConflict())  
+                .andExpect(status().isConflict())
                 .andExpect(result -> assertTrue(result.getResolvedException() instanceof EntityExistsException))
                 .andExpect(result -> assertEquals("Video with the same content already exists.", result.getResolvedException().getMessage()));
+        verify(videoService).publishRaw(rawVideoDTO);
+    }
+
+    @Test
+    public void testPublishEmptyBase64Video() {
+        RawVideoDTO rawVideoDTO = new RawVideoDTO("");
+        Mockito.when(videoService.publishRaw(rawVideoDTO)).thenCallRealMethod();
+        assertThrows(IllegalArgumentException.class, () -> videoService.publishRaw(rawVideoDTO));
     }
 
 
-
+    @Test
+    public void testPublishNullBase64Video() {
+        RawVideoDTO rawVideoDTO = new RawVideoDTO(null);
+        Mockito.when(videoService.publishRaw(rawVideoDTO)).thenCallRealMethod();
+        assertThrows(IllegalArgumentException.class, () -> videoService.publishRaw(rawVideoDTO));
+    }
 }

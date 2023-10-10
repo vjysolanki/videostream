@@ -2,6 +2,7 @@ package com.vj.tain.videostream.controller;
 
 import com.vj.tain.videostream.bom.Video;
 import com.vj.tain.videostream.dto.EngagementDTO;
+import com.vj.tain.videostream.dto.RawVideoDTO;
 import com.vj.tain.videostream.dto.VideoDetailsDTO;
 import com.vj.tain.videostream.dto.VideoMetadataDTO;
 import com.vj.tain.videostream.services.api.VideoService;
@@ -23,8 +24,8 @@ public class VideoController {
     private VideoService videoService;
 
     @PostMapping
-    public ResponseEntity<Video> publishVideo(@Valid @RequestBody Video video) {
-        Video savedVideo = videoService.publish(video);
+    public ResponseEntity<Video> publishVideo(@Valid @RequestBody RawVideoDTO rawVideoDTO) {
+        Video savedVideo =  videoService.publishRaw(rawVideoDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedVideo);
     }
 
@@ -87,10 +88,11 @@ public class VideoController {
         }
     }
 
-//    @GetMapping("/search/director/{directorName}")
+    //    @GetMapping("/search/director/{directorName}")
 //    public ResponseEntity<List<VideoMetadataProjection>> findVideosByDirector(@PathVariable String directorName) {
 //        List<VideoMetadataProjection> videos = videoService.findVideosByDirector(directorName);
 //        return ResponseEntity.ok(videos);
 //    }
 //
+
 }

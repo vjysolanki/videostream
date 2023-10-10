@@ -3,6 +3,7 @@ package com.vj.tain.videostream.services.imp;
 import com.vj.tain.videostream.bom.Metadata;
 import com.vj.tain.videostream.bom.Video;
 import com.vj.tain.videostream.dto.EngagementDTO;
+import com.vj.tain.videostream.dto.RawVideoDTO;
 import com.vj.tain.videostream.dto.VideoDetailsDTO;
 import com.vj.tain.videostream.dto.VideoMetadataDTO;
 import com.vj.tain.videostream.repository.VideoRepository;
@@ -15,6 +16,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
 import javax.persistence.EntityNotFoundException;
+import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -39,12 +41,19 @@ public class VideoServiceImpTest {
     private Metadata mockedMetadata;
     private Video mockedVideo;
 
+    private RawVideoDTO rawVideoDTO;
+    final private  String base64VideoContent = "SGVsbG8sIHdvcmxkIQ==";
+
     @BeforeEach
     public void setup() {
 
+        rawVideoDTO = new RawVideoDTO(base64VideoContent);
+        byte[] videoBytes = Base64.getDecoder().decode(rawVideoDTO.getBase64RawContents());
+
+
         mockedVideo = Video.builder()
                 .id(UUID.randomUUID().toString())
-                .content("Sample Content")
+                .base64RawContents(videoBytes)
                 .delisted(false)
                 .build();
 
@@ -62,15 +71,16 @@ public class VideoServiceImpTest {
     }
 
     @Test
-    public void testPublish() {
+    public void testPublishRawVideo() {
+
         Mockito.when(videoRepository.save(any())).thenReturn(mockedVideo);
 
-        Video result = videoServiceImp.publish(mockedVideo);
+        Video result = videoServiceImp.publishRaw(rawVideoDTO);
 
-        assertEquals(0, result.getImpressions());
-        assertEquals(0, result.getViews());
-        verify(videoRepository, times(1)).save(any(Video.class));
+        assertNotNull(result);
+        assertEquals(base64VideoContent, Base64.getEncoder().encodeToString(result.getBase64RawContents()));
     }
+
 
     @Test
     public void testLoad() {
@@ -84,6 +94,7 @@ public class VideoServiceImpTest {
 
         assertEquals(mockVideoId, result.getId());
         assertEquals(mockedMetadata, result.getMetadata());
+        assertEquals(base64VideoContent, result.getContents());
         assertEquals(1, mockedVideo.getImpressions());
         verify(videoRepository, times(1)).findById(mockVideoId);
         verify(metadataService, times(1)).getOptionalByVideoId(mockVideoId);

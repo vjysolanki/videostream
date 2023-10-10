@@ -3,6 +3,7 @@ package com.vj.tain.videostream.services.imp;
 import com.vj.tain.videostream.bom.Metadata;
 import com.vj.tain.videostream.bom.Video;
 import com.vj.tain.videostream.dto.EngagementDTO;
+import com.vj.tain.videostream.dto.RawVideoDTO;
 import com.vj.tain.videostream.dto.VideoDetailsDTO;
 import com.vj.tain.videostream.dto.VideoMetadataDTO;
 import com.vj.tain.videostream.repository.VideoRepository;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
+import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,10 +27,14 @@ public class VideoServiceImp implements VideoService {
     @Autowired
     private MetadataService metadataService;
 
-    public Video publish(Video video) {
-        if (null == video.getContent() || video.getContent().isBlank()) {
-            throw new IllegalArgumentException("Video cannot be empty!");
+    public Video publishRaw(RawVideoDTO rawVideoDTO) {
+        if(null == rawVideoDTO.getBase64RawContents() || rawVideoDTO.getBase64RawContents().isBlank()) {
+            throw new IllegalArgumentException("[ERROR] - Video is missing!!");
         }
+        byte[] videoBytes = Base64.getDecoder().decode(rawVideoDTO.getBase64RawContents());
+
+        Video video = new Video();
+        video.setBase64RawContents(videoBytes);
         video.setImpressions(0); // set initial impressions to 0
         video.setViews(0); // set initial views to 0
         return save(video);
@@ -45,8 +51,11 @@ public class VideoServiceImp implements VideoService {
 
         VideoDetailsDTO videoDetails = new VideoDetailsDTO();
         videoDetails.setId(existingVideo.getId());
-        videoDetails.setContent(existingVideo.getContent());
+
+        String contents = Base64.getEncoder().encodeToString(existingVideo.getBase64RawContents());
+        videoDetails.setContents(contents);
         videoDetails.setDelisted(existingVideo.isDelisted());
+
         Optional<Metadata> metadata = metadataService.getOptionalByVideoId(videoId);
         if (metadata.isPresent()) {
             videoDetails.setMetadata(metadata.get());

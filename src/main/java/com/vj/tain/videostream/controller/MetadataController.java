@@ -20,7 +20,7 @@ public class MetadataController {
     public ResponseEntity<Metadata> addMetadata(@PathVariable String videoId,
                                                 @Valid @RequestBody Metadata metadata) {
         idValidation(videoId);
-        Metadata savedMetadata = metadataService.add(videoId,metadata);
+        Metadata savedMetadata = metadataService.add(videoId, metadata);
         return new ResponseEntity<>(savedMetadata, HttpStatus.CREATED);
     }
 

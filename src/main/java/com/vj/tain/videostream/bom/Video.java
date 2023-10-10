@@ -29,8 +29,13 @@ public class Video {
     @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     private String id;
 
-    @NotBlank(message = "Video contents cannot be empty!")
-    private String content;  // mock video content (string)
+    //@NotBlank(message = "Video contents cannot be empty!")
+   // private String content;  // mock video content (string)
+
+    @Lob
+    @Column(columnDefinition = "BLOB")
+    private byte[] base64RawContents;
+
     @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     private boolean delisted; // for soft delete
     // Analytics

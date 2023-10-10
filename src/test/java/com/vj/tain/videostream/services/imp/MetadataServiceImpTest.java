@@ -2,6 +2,7 @@ package com.vj.tain.videostream.services.imp;
 
 import com.vj.tain.videostream.bom.Metadata;
 import com.vj.tain.videostream.bom.Video;
+import com.vj.tain.videostream.dto.RawVideoDTO;
 import com.vj.tain.videostream.repository.MetadataRepository;
 import com.vj.tain.videostream.repository.VideoRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,8 +14,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import javax.persistence.EntityExistsException;
 import javax.persistence.EntityNotFoundException;
+import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -36,22 +39,29 @@ public class MetadataServiceImpTest {
     private Video mockedVideo;
     private Metadata mockedMetadata;
 
+    private RawVideoDTO rawVideoDTO;
+    final private  String base64VideoContent = "SGVsbG8sIHdvcmxkIQ==";
+
     @BeforeEach
     public void setup() {
+        rawVideoDTO = new RawVideoDTO(base64VideoContent);
+        byte[] videoBytes = Base64.getDecoder().decode(rawVideoDTO.getBase64RawContents());
+
+
         mockedVideo = Video.builder()
-                .id("someId")
-                .content("Sample Content")
+                .id(UUID.randomUUID().toString())
+                .base64RawContents(videoBytes)
                 .delisted(false)
                 .build();
 
         mockedMetadata = Metadata.builder()
-                .videoId("someId")
+                .videoId(UUID.randomUUID().toString())
                 .title("Sample Title")
                 .synopsis("Sample Synopsis")
                 .director("Sample Director")
                 .crew(List.of("Crew1", "Crew2"))
                 .yearOfRelease(2023)
-                .genre("Drama,Comedy")
+                .genre("Action,Drama,Love")
                 .runningTime(120)
                 .format("4K")
                 .build();

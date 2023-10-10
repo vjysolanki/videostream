@@ -3,6 +3,7 @@ package com.vj.tain.videostream.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vj.tain.videostream.bom.Metadata;
 import com.vj.tain.videostream.bom.Video;
+import com.vj.tain.videostream.dto.RawVideoDTO;
 import com.vj.tain.videostream.services.api.MetadataService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,6 +14,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
 
@@ -33,12 +35,18 @@ public class MetadataControllerTest {
     private Metadata mockedMetadata;
     private Video mockedVideo;
 
+    private RawVideoDTO rawVideoDTO;
+    final private  String base64VideoContent = "SGVsbG8sIHdvcmxkIQ==";
+
     @BeforeEach
     public void setup() {
+        rawVideoDTO = new RawVideoDTO(base64VideoContent);
+        byte[] videoBytes = Base64.getDecoder().decode(rawVideoDTO.getBase64RawContents());
+
 
         mockedVideo = Video.builder()
                 .id(UUID.randomUUID().toString())
-                .content("Sample Content")
+                .base64RawContents(videoBytes)
                 .delisted(false)
                 .build();
 
