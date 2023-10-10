@@ -19,6 +19,7 @@ public class MetadataController {
     @PostMapping
     public ResponseEntity<Metadata> addMetadata(@PathVariable String videoId,
                                                 @Valid @RequestBody Metadata metadata) {
+        idValidation(videoId);
         Metadata savedMetadata = metadataService.add(videoId,metadata);
         return new ResponseEntity<>(savedMetadata, HttpStatus.CREATED);
     }
@@ -26,8 +27,15 @@ public class MetadataController {
     @PutMapping
     public ResponseEntity<Metadata> updateMetadata(@PathVariable String videoId,
                                                    @Valid @RequestBody Metadata metadata) {
+        idValidation(videoId);
         Metadata updatedMetadata = metadataService.update(videoId, metadata);
         return new ResponseEntity<>(updatedMetadata, HttpStatus.OK);
+    }
+
+    private static void idValidation(String videoId) {
+        if (null == videoId || videoId.isBlank()) {
+            throw new IllegalArgumentException("[ERROR] - Video ID is missing!!");
+        }
     }
 
 }

@@ -29,7 +29,6 @@ public class Metadata {
     @Column(name = "id", updatable = false, nullable = false, columnDefinition = "VARCHAR(36)")
     @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     private String id;
-    @NotBlank(message = "Video ID cannot be empty!")
     @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     private String videoId;
 
@@ -42,7 +41,7 @@ public class Metadata {
     private String genre;
     private int runningTime;
     private String format;
-    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY) // modify through api
     private boolean delisted; // for soft DELETE
 
     // Optimistic lock
@@ -50,4 +49,12 @@ public class Metadata {
     @JsonIgnore
     @Version
     private int version;
+
+    @Schema(hidden = true)
+    @JsonIgnore
+    public boolean isEmpty() {
+        return null == title && null == synopsis && null == director
+                && (null == crew || crew.isEmpty()) && 0 == yearOfRelease
+                && null == genre  && 0 == runningTime  && null == format;
+    }
 }

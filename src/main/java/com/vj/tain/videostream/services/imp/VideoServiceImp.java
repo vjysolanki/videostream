@@ -26,6 +26,9 @@ public class VideoServiceImp implements VideoService {
     private MetadataService metadataService;
 
     public Video publish(Video video) {
+        if (null == video.getContent() || video.getContent().isBlank()) {
+            throw new IllegalArgumentException("Video cannot be empty!");
+        }
         video.setImpressions(0); // set initial impressions to 0
         video.setViews(0); // set initial views to 0
         return save(video);

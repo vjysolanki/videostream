@@ -185,6 +185,7 @@ public class VideoServiceImpTest {
         assertThrows(EntityNotFoundException.class, () -> videoServiceImp.load(nonExistentVideoId));
     }
 
+
     @Test
     public void testPlayVideoNotFound() {
         String nonExistentVideoId = "nonExistentId";

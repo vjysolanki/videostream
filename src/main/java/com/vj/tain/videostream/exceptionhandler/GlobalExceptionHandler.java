@@ -30,7 +30,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(EntityExistsException.class)
     public ResponseEntity<String> handleDuplicateMetadata(EntityExistsException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.CONFLICT);
     }
 
 

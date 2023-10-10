@@ -25,6 +25,9 @@ public class MetadataServiceImp implements MetadataService {
 
     @Override
     public Metadata add(String vId, Metadata metadata) {
+        if (metadata.isEmpty()) {
+            throw new IllegalArgumentException("Metadata cannot be empty!");
+        }
         //avoid multiple metadata for same video id
         if (metadataRepository.findByVideoId(vId).isPresent()) {
             log.error("META-SERVICE - Metadata already exists for this videoId " + vId);
@@ -37,6 +40,9 @@ public class MetadataServiceImp implements MetadataService {
     @Override
     public Metadata update(String vId, Metadata newMetadata) {
 
+        if (newMetadata.isEmpty()) {
+            throw new IllegalArgumentException("Metadata cannot be empty!");
+        }
         Metadata existingMetadata = getByVideoId(vId);
 
         newMetadata.setId(existingMetadata.getId());

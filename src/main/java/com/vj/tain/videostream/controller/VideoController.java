@@ -24,36 +24,28 @@ public class VideoController {
 
     @PostMapping
     public ResponseEntity<Video> publishVideo(@Valid @RequestBody Video video) {
-        log.info(video.toString());
         Video savedVideo = videoService.publish(video);
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedVideo); // returning the saved video
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedVideo);
     }
 
     @DeleteMapping("/{videoId}")
     public ResponseEntity<Video> delistVideo(@PathVariable String videoId, @RequestParam(defaultValue = "false") boolean soft) {
-        if (null == videoId || videoId.isBlank()) {
-            throw new IllegalArgumentException("[ERROR] - Video ID is missing!!");
-        }
-
-        // TODO: handle hard delete if required
+        idValidation(videoId);
+        // XXX: handle hard delete if required
         Video videoToDelist = videoService.delist(videoId);
         return ResponseEntity.ok(videoToDelist);
     }
 
     @GetMapping("/{videoId}/load")
     public ResponseEntity<VideoDetailsDTO> loadVideoById(@PathVariable String videoId) {
-        if (null == videoId || videoId.isBlank()) {
-            throw new IllegalArgumentException("[ERROR] - Video ID is missing!!");
-        }
+        idValidation(videoId);
         VideoDetailsDTO videoToReturn = videoService.load(videoId);
         return ResponseEntity.ok(videoToReturn);
     }
 
     @GetMapping("/{videoId}/play")
     public ResponseEntity<String> playVideo(@PathVariable String videoId) {
-        if (null == videoId || videoId.isBlank()) {
-            throw new IllegalArgumentException("[ERROR] - Video ID is missing!!");
-        }
+        idValidation(videoId);
         String videoUrl = videoService.play(videoId);
         return ResponseEntity.ok(videoUrl);
     }
@@ -84,10 +76,16 @@ public class VideoController {
 
     @GetMapping("/{videoId}/engagement")
     public ResponseEntity<EngagementDTO> getVideoEngagement(@PathVariable String videoId) {
+        idValidation(videoId);
         EngagementDTO engagement = videoService.getEngagementStats(videoId);
         return ResponseEntity.ok(engagement);
     }
 
+    private static void idValidation(String videoId) {
+        if (null == videoId || videoId.isBlank()) {
+            throw new IllegalArgumentException("[ERROR] - Video ID is missing!!");
+        }
+    }
 
 //    @GetMapping("/search/director/{directorName}")
 //    public ResponseEntity<List<VideoMetadataProjection>> findVideosByDirector(@PathVariable String directorName) {
