@@ -141,16 +141,17 @@ Add and Edit the metadata associated with the video
   - Concurrent update for the same record 
 ## Test Coverage
 
-Classes: 100%
-Lines: 85%
-
+**Classes**: 100% <br>
+**Lines**: 85% <br>
 Full report screenshot below:
+
+
 <img width="728" alt="image" src="https://github.com/vjysolanki/videostream/assets/89914381/4ce61f47-b0e6-4b2b-8698-2a1704e95595">
 
 
 ## Assumptions and Improvements
-- 1-to-1 Relationship: Currently, the service operates under the presumption that each video is uniquely associated with a single metadata entry.
-- Video Content Encoding: The system accepts video content as base64 encoded strings, which serve as a textual representation of the video's raw bytes
-- Data Validation: There's room for enhanced data validation. Certain fields, such as runtime or release year, should be subjected to checks ensuring their validity (e.g., runtime must be positive, and release year should be within plausible ranges).
-- Playback Mechanism: As of now, the 'Play' operation fetches a mock URL, suggesting the video's storage location, rather than the direct video content. While this emulates real-world streaming services (where a player fetches content from a provided URL), a complete solution might involve integrating an actual content delivery system or leveraging cloud services for video streaming.
-- Database Choices: The application presently utilizes an H2 in-memory database. This choice is optimal for development or demonstration purposes due to its simplicity and ephemeral nature. For production-grade applications or longer-term storage, transitioning to more robust databases, such as PostgreSQL, would be advisable.
+- **1-to-1 Relationship:** Currently, the service operates under the presumption that each video is uniquely associated with a single metadata entry.
+- **Video Content Encoding:** The system accepts video content as base64 encoded strings, which serve as a textual representation of the video's raw bytes
+- **Data Validation:** There's room for enhanced data validation. Certain fields, such as runtime or release year, should be subjected to checks ensuring their validity (e.g., runtime must be positive, and release year should be within plausible ranges).
+- **Playback Mechanism:** As of now, the 'Play' operation fetches a mock URL, suggesting the video's storage location, rather than the direct video content. While this emulates real-world streaming services (where a player fetches content from a provided URL), a complete solution might involve integrating an actual content delivery system or leveraging cloud services for video streaming.
+- **Database Choices:** The application presently utilizes an H2 in-memory database. This choice is optimal for development or demonstration purposes due to its simplicity and ephemeral nature. For production-grade applications or longer-term storage, transitioning to more robust databases, such as PostgreSQL, would be advisable.
