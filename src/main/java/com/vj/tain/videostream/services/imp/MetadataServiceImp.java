@@ -57,7 +57,7 @@ public class MetadataServiceImp implements MetadataService {
         return metadataRepository.findByVideoId(vId);
     }
 
-    private Metadata getByVideoId(String vId) {
+    public Metadata getByVideoId(String vId) {
         return metadataRepository.findByVideoId(vId)
                 .orElseThrow(() -> new EntityNotFoundException("[ERROR] - Metadata you are trying to access for videoId " + vId + " doesn't exist!!"));
     }
@@ -76,7 +76,7 @@ public class MetadataServiceImp implements MetadataService {
     }
 
     @Transactional
-    private Optional<Metadata> deleteByVideoId(String vId) {
+    public Optional<Metadata> deleteByVideoId(String vId) {
         Optional<Metadata> existingMetadata = getOptionalByVideoId(vId);
         if (existingMetadata.isEmpty()) {
             log.warn("META-SERVICE - trying to delete(hard) metadata for non existing video " + vId);
@@ -84,11 +84,12 @@ public class MetadataServiceImp implements MetadataService {
         }
         Metadata metadata = existingMetadata.get();
         metadataRepository.deleteById(metadata.getId());
-        return Optional.of(save(metadata));
+        return existingMetadata;
     }
 
     @Transactional
-    private Metadata save(Metadata metadata) {
+    @Override
+    public Metadata save(Metadata metadata) {
         // Ensuring that the videoId references an existing Video
         if (videoRepository.findById(metadata.getVideoId()).isEmpty()) {
             log.warn("META-SERVICE - The provided videoId " + metadata.getVideoId() + " does not reference a valid video.");

@@ -1,152 +1,205 @@
-//package com.vj.tain.videostream.services.imp;
-//
-//import com.vj.tain.videostream.bom.Video;
-//import com.vj.tain.videostream.repository.VideoRepository;
-//import org.junit.jupiter.api.BeforeEach;
-//import org.junit.jupiter.api.Test;
-//import org.junit.jupiter.api.extension.ExtendWith;
-//import org.mockito.InjectMocks;
-//import org.mockito.Mock;
-//import org.mockito.junit.jupiter.MockitoExtension;
-//
-//import java.util.Arrays;
-//import java.util.List;
-//import java.util.Optional;
-//import java.util.UUID;
-//
-//import static org.junit.jupiter.api.Assertions.*;
-//import static org.mockito.ArgumentMatchers.any;
-//import static org.mockito.Mockito.*;
-//
-//@ExtendWith(MockitoExtension.class)
-//public class VideoServiceImpTest {
-//
-//    @InjectMocks
-//    private VideoServiceImp videoService;
-//
-//    @Mock
-//    private VideoRepository videoRepository;
-//
-//    private Video videoWithMetadata;
-//    private Video onlyVideo;
-//
-//    @BeforeEach
-//    public void setup() {
-//
-//        onlyVideo = new Video();
-//        onlyVideo.setContent("Sample Content Mock without Metadata");
-//        onlyVideo.setDelisted(false);
-//
-//        videoWithMetadata = new Video();
-//        videoWithMetadata.setContent("Sample Content Mock");
-//        videoWithMetadata.setTitle("Sample Title");
-//        videoWithMetadata.setSynopsis("Sample Synopsis");
-//        videoWithMetadata.setDirector("Sample Director");
-//        videoWithMetadata.setGenre("Sample Genre");
-//        videoWithMetadata.setYearOfRelease(2023);
-//        videoWithMetadata.setRunningTime(120);
-//        videoWithMetadata.setCrew(Arrays.asList("Actor 1", "Actor 2", "Actor 3"));
-//        videoWithMetadata.setFormat("mp4");
-//        videoWithMetadata.setDelisted(false);
-//    }
-//
-//    @Test
-//    public void testPublish() {
-//        when(videoRepository.save(any(Video.class))).thenReturn(onlyVideo);
-//
-//        Video result = videoService.publish(onlyVideo);
-//
-//        assertNotNull(result);
-//        assertNotNull(onlyVideo.getContent());
-//        assertNull(onlyVideo.getCrew());
-//        assertNull(onlyVideo.getTitle());
-////        assertEquals("Sample Title", result.getTitle());
-////        assertEquals("Sample Synopsis", result.getSynopsis());
-////        assertEquals("Sample Director", result.getDirector());
-////        assertEquals("Sample Genre", result.getGenre());
-////        assertEquals(2023, result.getYearOfRelease());
-////        assertEquals(120, result.getRunningTime());
-////        assertEquals("Sample Content Mock", result.getContent());
-////        assertEquals(Arrays.asList("Actor 1", "Actor 2", "Actor 3"), result.getCrew());
-//        assertFalse(result.isDelisted());
-//
-//        assertEquals(0, result.getImpressions());
-//        assertEquals(0, result.getViews());
-//
-//        verify(videoRepository, times(1)).save(any(Video.class));
-//    }
-//
-//    @Test
-//    public void testListAll() {
-//        when(videoRepository.findAll()).thenReturn( List.of(videoWithMetadata));
-//
-//        List<Video> videos = videoService.listAll();
-//
-//        assertNotNull(videos);
-//        assertFalse(videos.isEmpty());
-//        assertEquals(1, videos.size());
-//    }
-//
-//    @Test
-//    public void testUpdateMetadataVideoNotFound() {
-//        when(videoRepository.findById(anyString())).thenReturn(Optional.empty());
-//
-//        assertThrows(IllegalArgumentException.class, () -> videoService.updateMetadata("fakeId", videoWithMetadata));
-//    }
-//
-//    @Test
-//    public void testUpdateMetadata_Success() {
-//        when(videoRepository.findById(any(String.class))).thenReturn(Optional.of(videoWithMetadata));
-//        String updateTitle = "Updated Title";
-//        videoWithMetadata.setTitle(updateTitle);
-//        when(videoRepository.save(any(Video.class))).thenReturn(videoWithMetadata);
-//
-//        Video updateData = new Video();
-//        updateData.setTitle(updateTitle);
-//
-//        Video result = videoService.updateMetadata(UUID.randomUUID().toString(), updateData);
-//
-//        assertNotNull(result);
-//        assertEquals(updateTitle, result.getTitle());
-//        assertEquals("Sample Synopsis", result.getSynopsis()); // Unchanged values remain the same
-//
-//        verify(videoRepository, times(1)).findById(any(String.class));
-//        verify(videoRepository, times(1)).save(any(Video.class));
-//    }
-//
-//    @Test
-//    public void testUpdateMetadata_VideoNotFound() {
-//        when(videoRepository.findById(any(String.class))).thenReturn(Optional.empty());
-//
-//        Video updateData = new Video();
-//        updateData.setTitle("Updated Title");
-//
-//        assertThrows(IllegalArgumentException.class, () -> {
-//            videoService.updateMetadata(UUID.randomUUID().toString(), updateData);
-//        });
-//
-//        verify(videoRepository, times(1)).findById(any(String.class));
-//        verify(videoRepository, times(0)).save(any(Video.class)); // Save should not be called
-//    }
-//
-//    @Test
-//    public void testUpdateMetadata_PartialUpdate() {
-//        when(videoRepository.findById(any(String.class))).thenReturn(Optional.of(videoWithMetadata));
-//        String updateDirector = "Updated Director";
-//        videoWithMetadata.setDirector(updateDirector);
-//        when(videoRepository.save(any(Video.class))).thenReturn(videoWithMetadata);
-//
-//        Video updateData = new Video();
-//        updateData.setDirector(updateDirector);
-//
-//        Video result = videoService.updateMetadata(UUID.randomUUID().toString(), updateData);
-//
-//        assertNotNull(result);
-//        assertEquals("Sample Title", result.getTitle());  // Unchanged
-//        assertEquals(updateDirector, result.getDirector());
-//
-//        verify(videoRepository, times(1)).findById(any(String.class));
-//        verify(videoRepository, times(1)).save(any(Video.class));
-//    }
-//}
-//
+package com.vj.tain.videostream.services.imp;
+
+import com.vj.tain.videostream.bom.Metadata;
+import com.vj.tain.videostream.bom.Video;
+import com.vj.tain.videostream.dto.EngagementDTO;
+import com.vj.tain.videostream.dto.VideoDetailsDTO;
+import com.vj.tain.videostream.dto.VideoMetadataDTO;
+import com.vj.tain.videostream.repository.VideoRepository;
+import com.vj.tain.videostream.services.api.MetadataService;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+
+import javax.persistence.EntityNotFoundException;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+
+@SpringBootTest
+public class VideoServiceImpTest {
+
+    @Autowired
+    private VideoServiceImp videoServiceImp;
+
+    @MockBean
+    private VideoRepository videoRepository;
+
+    @MockBean
+    private MetadataService metadataService;
+
+    private Metadata mockedMetadata;
+    private Video mockedVideo;
+
+    @BeforeEach
+    public void setup() {
+
+        mockedVideo = Video.builder()
+                .id(UUID.randomUUID().toString())
+                .content("Sample Content")
+                .delisted(false)
+                .build();
+
+        mockedMetadata = Metadata.builder()
+                .videoId(UUID.randomUUID().toString())
+                .title("Sample Title")
+                .synopsis("Sample Synopsis")
+                .director("Sample Director")
+                .crew(List.of("Crew1", "Crew2"))
+                .yearOfRelease(2023)
+                .genre("Action,Drama,Love")
+                .runningTime(120)
+                .format("4K")
+                .build();
+    }
+
+    @Test
+    public void testPublish() {
+        Mockito.when(videoRepository.save(any())).thenReturn(mockedVideo);
+
+        Video result = videoServiceImp.publish(mockedVideo);
+
+        assertEquals(0, result.getImpressions());
+        assertEquals(0, result.getViews());
+        verify(videoRepository, times(1)).save(any(Video.class));
+    }
+
+    @Test
+    public void testLoad() {
+        String mockVideoId = UUID.randomUUID().toString();
+        mockedVideo.setId(mockVideoId);
+
+        Mockito.when(videoRepository.findById(mockVideoId)).thenReturn(Optional.of(mockedVideo));
+        Mockito.when(metadataService.getOptionalByVideoId(mockVideoId)).thenReturn(Optional.of(mockedMetadata));
+
+        VideoDetailsDTO result = videoServiceImp.load(mockVideoId);
+
+        assertEquals(mockVideoId, result.getId());
+        assertEquals(mockedMetadata, result.getMetadata());
+        assertEquals(1, mockedVideo.getImpressions());
+        verify(videoRepository, times(1)).findById(mockVideoId);
+        verify(metadataService, times(1)).getOptionalByVideoId(mockVideoId);
+    }
+
+    @Test
+    public void testDelist() {
+        String mockVideoId = UUID.randomUUID().toString();
+        mockedVideo.setId(mockVideoId);
+
+        Mockito.when(videoRepository.findById(mockVideoId)).thenReturn(Optional.of(mockedVideo));
+        Mockito.when(videoRepository.save(any(Video.class))).thenReturn(mockedVideo);
+
+        Mockito.when(metadataService.delist(mockVideoId)).thenReturn(Optional.of(mockedMetadata));
+
+        Video result = videoServiceImp.delist(mockVideoId);
+
+        assertTrue(result.isDelisted());
+        verify(videoRepository, times(1)).findById(mockVideoId);
+        verify(metadataService, times(1)).delist(mockVideoId);
+    }
+
+    @Test
+    public void testPlay() {
+        String mockVideoId = UUID.randomUUID().toString();
+        mockedVideo.setId(mockVideoId);
+
+        Mockito.when(videoRepository.findById(mockVideoId)).thenReturn(Optional.of(mockedVideo));
+
+        String playUrl = videoServiceImp.play(mockVideoId);
+
+        assertTrue(playUrl.contains(mockVideoId));
+        assertEquals(1, mockedVideo.getViews());
+        verify(videoRepository, times(1)).findById(mockVideoId);
+    }
+
+    @Test
+    public void testListAllVideosWithPartialMetadata() {
+        List<VideoMetadataDTO> mockList = List.of(new VideoMetadataDTO());
+        Mockito.when(videoRepository.findAllProjectedBy()).thenReturn(mockList);
+
+        List<VideoMetadataDTO> result = videoServiceImp.listAllVideosWithPartialMetadata();
+
+        assertEquals(mockList.size(), result.size());
+    }
+
+    @Test
+    public void testSearchVideos() {
+        String mockDirector = "Sample Director";
+        String mockGenre = "Sample Genre";
+        String mockCrew = "Sample Crew";
+        List<VideoMetadataDTO> mockList = List.of(new VideoMetadataDTO());
+
+        Mockito.when(videoRepository.search(mockDirector, mockGenre, mockCrew)).thenReturn(mockList);
+
+        List<VideoMetadataDTO> result = videoServiceImp.searchVideos(mockDirector, mockGenre, mockCrew);
+
+        assertEquals(mockList.size(), result.size());
+    }
+
+    @Test
+    public void testListAll() {
+        List<Video> mockList = List.of(mockedVideo);
+        Mockito.when(videoRepository.findAll()).thenReturn(mockList);
+
+        List<Video> result = videoServiceImp.listAll();
+
+        assertEquals(mockList.size(), result.size());
+    }
+
+    @Test
+    public void testGetEngagementStats() {
+        String mockVideoId = UUID.randomUUID().toString();
+        mockedVideo.setId(mockVideoId);
+
+        Mockito.when(videoRepository.findById(mockVideoId)).thenReturn(Optional.of(mockedVideo));
+
+        EngagementDTO result = videoServiceImp.getEngagementStats(mockVideoId);
+
+        assertEquals(mockedVideo.getImpressions(), result.getImpressions());
+        assertEquals(mockedVideo.getViews(), result.getViews());
+    }
+
+    @Test
+    public void testSave() {
+        Mockito.when(videoRepository.save(mockedVideo)).thenReturn(mockedVideo);
+
+        Video result = videoServiceImp.save(mockedVideo);
+
+        assertNotNull(result);
+        assertEquals(mockedVideo, result);
+    }
+
+    @Test
+    public void testLoadVideoNotFound() {
+        String nonExistentVideoId = "nonExistentId";
+        Mockito.when(videoRepository.findById(nonExistentVideoId)).thenReturn(Optional.empty());
+
+        assertThrows(EntityNotFoundException.class, () -> videoServiceImp.load(nonExistentVideoId));
+    }
+
+    @Test
+    public void testPlayVideoNotFound() {
+        String nonExistentVideoId = "nonExistentId";
+        Mockito.when(videoRepository.findById(nonExistentVideoId)).thenReturn(Optional.empty());
+
+        assertThrows(EntityNotFoundException.class, () -> videoServiceImp.play(nonExistentVideoId));
+    }
+
+    @Test
+    public void testDelistVideoNotFound() {
+        String nonExistentVideoId = "nonExistentId";
+        Mockito.when(videoRepository.findById(nonExistentVideoId)).thenReturn(Optional.empty());
+
+        assertThrows(EntityNotFoundException.class, () -> videoServiceImp.delist(nonExistentVideoId));
+    }
+
+
+}

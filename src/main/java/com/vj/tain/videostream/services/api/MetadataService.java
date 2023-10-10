@@ -13,4 +13,6 @@ public interface MetadataService {
 
     Optional<Metadata> getOptionalByVideoId(String vId);
 
+    Metadata save(Metadata metadata);
+
 }

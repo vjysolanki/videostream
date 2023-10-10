@@ -1,4 +1,4 @@
-# Widgets
+# Video Streaming API
 A REST API project for Tain Video Streaming. The project is built with following:
 * Java 17
 * Build tool: Maven 3.9+
