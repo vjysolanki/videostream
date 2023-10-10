@@ -1,48 +1,64 @@
 # Video Streaming API
-A REST API project for Tain Video Streaming. The project is built with following:
-* Java 17
-* Build tool: Maven 3.9+
-* Backend framework: 
-  * Sprint-boot 2.7.16
-  * H2 Database
-  * OpenAPI for API UI.
+
+A REST API project for Tain Video Streaming.
+
+## Tech Stack
+- **Java**: 17
+- **Build Tool**: Maven 3.9+
+- **Backend Framework**: 
+  - Spring Boot 2.7.16
+  - H2 In-memory Database
+  - OpenAPI for API documentation
 
 ## Howto's:
 
-### Build the project: 
-* Checkout the project.
-* Build the project with maven: 
-    
-    `mvn clean install`
+### Building the Project
 
-### Launching the server:
-* After the build is done launch the server with following:
+1. Clone the repository.
+2. Build the project using maven:
 
-    `mvn spring-boot:run`
+    ```bash
+    mvn clean install
+    ```
 
-* Server is launched on 8080 port. Target on http://localhost:8080/videos
-### Swagger API:
-* To access the interactive API (openAPI) on: http://localhost:8080/swagger-ui/index.html
-* <img width="1512" alt="image" src="https://github.com/vjysolanki/videostream/assets/89914381/1e81272b-7724-4330-85d3-df8f6f9b3124">
+### Launching the Server
 
+1. After building, launch the server using:
 
-### H2 Database:
-* You can view the contents of the H2 database by navigating to http://localhost:8080/h2-console in a web browser. Make sure to configure the JDBC URL as jdbc:h2:mem:testdb to connect to the database.
+    ```bash
+    mvn spring-boot:run
+    ```
 
-## REST API Exposed: 
+2. The server starts on port 8080. Access it via: http://localhost:8080/videos
 
-Following rest APIs are exposed. For all the below mentioned API, we can test them with swagger exposed API or use curl as given under usage. 
+### Swagger API
+
+Access the interactive API (OpenAPI) documentation at: 
+http://localhost:8080/swagger-ui/index.html
+
+![Swagger Screenshot](https://github.com/vjysolanki/videostream/assets/89914381/1e81272b-7724-4330-85d3-df8f6f9b3124)
+
+### H2 Database
+
+To view the contents of the H2 database, navigate to: 
+http://localhost:8080/h2-console 
+
+Remember to set the JDBC URL as `jdbc:h2:mem:testdb` to connect.
+
+## REST API Exposed
+
+Detailed API information is given below:
 
 ### Video
-#### Publish a video
-PUT api to update an existing video metadata in store. If the video doesnt exist, then returns 400.
 
-`curl -X POST 'http://localhost:8080/videos' \
+#### Publish a Video
+
+`bash
+curl -X POST 'http://localhost:8080/videos' \
 -H 'Content-Type: application/json' \
 -d '{
 "content": "Your Video Content"
 }'`
-
 
 #### Soft delete a video 
 
